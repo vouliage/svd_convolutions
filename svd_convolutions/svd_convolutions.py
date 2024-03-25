@@ -1,10 +1,13 @@
 """
 Toy example of the SVD convolution
 
-This module provides a toy example of the SVD (Singular Value Decomposition) convolution. It includes two classes: ClassicConvolution and SVDConvolution, as well as an ImageGenerator class for generating random images for testing.
+This module provides a toy example of the SVD (Singular Value Decomposition) convolution.
+It includes two classes: ClassicConvolution and SVDConvolution,
+as well as an ImageGenerator class for generating random images for testing.
 
 Classes:
 - ClassicConvolution: Represents a classic convolution.
+- FFTConvolution: Represents a FFT convolution.
 - SVDConvolution: Represents the SVD approximate convolution.
 - ImageGenerator: Generates random images for testing.
 
@@ -40,6 +43,32 @@ class ClassicConvolution:
         - np.array: The result of the convolution.
         """
         return sp.signal.convolve2d(self.arr, self.kernel)
+
+class FFTConvolution:
+    """
+    The class that represents a FFT convolution
+    """
+
+    def __init__(self, arr: np.array, kernel: np.array) -> None:
+        """
+        Initialize the ClassicConvolution class.
+
+        Parameters:
+        - arr (np.array): The input array.
+        - kernel (np.array): The convolution kernel.
+        """
+        self.arr = np.copy(arr)
+        self.kernel = np.copy(kernel)
+
+    @property
+    def convolution(self) -> np.array:
+        """
+        Perform the convolution operation with FFT.
+
+        Returns:
+        - np.array: The result of the convolution.
+        """
+        return sp.signal.fftconvolve(self.arr, self.kernel)
 
 
 class SVDConvolution:
@@ -98,12 +127,13 @@ class SVDConvolution:
         Returns:
         - np.array: The result of the approximate convolution.
         """
+
         u, s, v = self._u, self._s, self._v
 
         hterms = np.array(
             [
                 [
-                    s[j] * np.convolve(u[..., j], self.arr[i])
+                    s[j] * np.convolve(u[:, j], self.arr[i])
                     for i in range(self.arr.shape[0])
                 ]
                 # for j in range(u.shape[0])
@@ -167,18 +197,27 @@ class ImageGenerator:
 
 
 if __name__ == "__main__":
-    r = range(-8, 9)
-    x, y = np.meshgrid(r, r)
-    kernel = x ** 2 + y ** 2 < 64
+    import timeit
 
-    img_gen = ImageGenerator()
+    r = range(-2, 3)
+    x, y = np.meshgrid(r, r)
+    kernel = x ** 2 + y ** 2 < 4
+
+    img_gen = ImageGenerator((500, 500))
 
     conv = ClassicConvolution(img_gen.image, kernel)
     res = conv.convolution
-    print(res.shape)
+    t_classic = timeit.timeit(lambda: conv.convolution, number=1000)
+    print(f"Classic: {t_classic}")
+
+    fft_conv = FFTConvolution(img_gen.image, kernel)
+    res = fft_conv.convolution
+    t_classic = timeit.timeit(lambda: conv.convolution, number=1000)
+    print(f"FFT conv: {t_classic}")
 
     conv_approx = SVDConvolution(img_gen.image, kernel)
     res_svd = conv_approx.convolution
-    print(conv_approx.convolution.shape)
+    t_svd = timeit.timeit(lambda: conv_approx.convolution, number=1000)
+    print(f"SVD: {t_svd}")
 
     print(abs(res_svd - res).sum())
