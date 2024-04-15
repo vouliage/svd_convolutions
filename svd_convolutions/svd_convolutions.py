@@ -70,7 +70,6 @@ class FFTConvolution:
         """
         return sp.signal.fftconvolve(self.arr, self.kernel)
 
-
 class SVDConvolution:
     """
     The class that represents the SVD approximate convolution
@@ -88,7 +87,9 @@ class SVDConvolution:
         """
         self.rank = rows
         self.arr = np.copy(arr)
-        self.kernel = kernel
+        self._kernel = np.copy(kernel)
+        self._u, self._s, self._v = np.linalg.svd(self.kernel)
+        self.rank = self.rank or np.linalg.matrix_rank(self.kernel)
 
     @property
     def kernel(self) -> np.array:
@@ -101,7 +102,7 @@ class SVDConvolution:
         return self._kernel
 
     @kernel.setter
-    def kernel(self, new_kernel: np.array) -> None:
+    def kernel(self, new_kernel: np.array):
         """
         Set the kernel matrix and perform Singular Value Decomposition (SVD).
 
@@ -111,7 +112,7 @@ class SVDConvolution:
         Returns:
         - None
         """
-        self._kernel = np.copy(kernel)
+        self._kernel = np.copy(new_kernel)
         self._u, self._s, self._v = np.linalg.svd(self.kernel)
         self.rank = self.rank or np.linalg.matrix_rank(self.kernel)
 
