@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "svd_convolutions"
-version = "0.1.0"
+version = "0.1.1"
 description = "A package containing the implementation of an approximate convolution algorithm"
 authors = ["Petro Mozil <mozil.petryk@gmail.com>"]
 license = "GPL"

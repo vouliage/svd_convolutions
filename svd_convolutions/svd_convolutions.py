@@ -77,7 +77,7 @@ class SVDConvolution:
 
     def __init__(
         self, arr: np.array, kernel: np.array, rows: int | None = None
-    ) -> None:
+        ):
         """
         Initialize the SVDConvolution class.
 
@@ -87,12 +87,10 @@ class SVDConvolution:
         """
         self.rank = rows
         self.arr = np.copy(arr)
-        self._kernel = np.copy(kernel)
-        self._u, self._s, self._v = np.linalg.svd(self.kernel)
-        self.rank = self.rank or np.linalg.matrix_rank(self.kernel)
+        self.set_kernel(kernel)
 
     @property
-    def kernel(self) -> np.array:
+    def kernel(self):
         """
         Get the kernel matrix.
 
@@ -101,8 +99,7 @@ class SVDConvolution:
         """
         return self._kernel
 
-    @kernel.setter
-    def kernel(self, new_kernel: np.array):
+    def set_kernel(self, new_kernel: np.array):
         """
         Set the kernel matrix and perform Singular Value Decomposition (SVD).
 
@@ -113,8 +110,8 @@ class SVDConvolution:
         - None
         """
         self._kernel = np.copy(new_kernel)
-        self._u, self._s, self._v = np.linalg.svd(self.kernel)
-        self.rank = self.rank or np.linalg.matrix_rank(self.kernel)
+        self._u, self._s, self._v = np.linalg.svd(new_kernel)
+        self.rank = self.rank or np.linalg.matrix_rank(new_kernel)
 
     @property
     def convolution(self) -> np.array:
